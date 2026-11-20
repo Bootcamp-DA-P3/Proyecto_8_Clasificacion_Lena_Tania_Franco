@@ -8,7 +8,7 @@ Predecir si una persona tiene cuenta financiera (`account`: 1 = sí, 0 = no) a p
 
 **Uso de negocio:** detectar perfiles excluidos del sistema financiero para orientar campañas de inclusión financiera.
 
-**Dataset:** Global Findex 2025 (`data/findex_microdata_2025_labelled_update112425.csv`), 144.090 filas, 199 columnas, 140 economías.
+**Dataset:** Global Findex 2025 (`data/raw/findex_microdata_2025_labelled_update112425.csv`), 144.090 filas, 199 columnas, 140 economías.
 
 **Por qué `account`:**
 
@@ -34,7 +34,7 @@ Predecir si una persona tiene cuenta financiera (`account`: 1 = sí, 0 = no) a p
   - `random_state=42` en todo.
   - Split estratificado 80/20, único y guardado en `data/processed`.
   - Overfitting = diferencia de F1 entre train y test, debe ser < 5%.
-- [ ] Crear la estructura del repo:
+- [x] Crear la estructura del repo:
 
 ```
 data/raw/
@@ -54,9 +54,9 @@ docs/
 
 ### Nivel esencial
 
-- [ ] Configurar ramas: `main`, `dev` y una rama por feature (`feature/eda`, `feature/modelo`, etc.).
-- [ ] Definir reglas de commits y crear el tablero Trello.
-- [ ] Decidir qué hacer con el CSV de 50 MB: Git LFS o `.gitignore` con instrucciones de descarga.
+- [x] Configurar ramas: `main`, `dev` y una rama por feature (`feature/eda`, `feature/modelo`, etc.).
+- [x] Definir reglas de commits y crear el tablero Trello.
+- [x] Decidir qué hacer con el CSV de 50 MB: Git LFS o `.gitignore` con instrucciones de descarga.
 - [ ] `src/preprocess.py`:
   - Selección de columnas (sin leakage).
   - Tratamiento de nulos.
