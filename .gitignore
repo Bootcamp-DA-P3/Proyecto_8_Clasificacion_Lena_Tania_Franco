@@ -221,3 +221,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Datos generados por src/preprocess.py
+data/processed/*
+!data/processed/.gitkeep
