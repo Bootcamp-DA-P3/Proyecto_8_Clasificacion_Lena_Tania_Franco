@@ -225,3 +225,9 @@ __marimo__/
 # Datos generados por src/preprocess.py
 data/processed/*
 !data/processed/.gitkeep
+
+# Artefactos generados (modelos y preprocesador), no se versionan
+models/*.joblib
+
+# Configuración local de Claude Code
+.claude/
