@@ -228,3 +228,6 @@ data/processed/*
 
 # Artefactos generados (modelos y preprocesador), no se versionan
 models/*.joblib
+
+# Configuración local de Claude Code
+.claude/
