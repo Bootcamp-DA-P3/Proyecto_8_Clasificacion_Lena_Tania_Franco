@@ -61,7 +61,8 @@ def cargar_economias() -> pd.DataFrame:
 # ── Carga del modelo y preprocesador (cacheados) ─────────────────────────────
 @st.cache_resource(show_spinner=False)
 def cargar_modelo():
-    """Carga el modelo final o crea un modelo dummy si aún no existe."""
+    """Carga el modelo final de Tania (o crea un modelo dummy si aún no existe)."""
+    import json
     import joblib
     from sklearn.dummy import DummyClassifier
 
@@ -69,28 +70,45 @@ def cargar_modelo():
     if PREPROCESSOR_PATH.exists():
         preprocesador = joblib.load(PREPROCESSOR_PATH)
 
-    # TODO: reemplazar con el modelo final cuando Tania lo entregue
-    # model = joblib.load(MODEL_PATH)
-    if MODEL_PATH.exists():
-        model = joblib.load(MODEL_PATH)
+    # Buscar modelo final (modelo_final.joblib de Tania o best_model.joblib)
+    ruta_modelo = None
+    for cand in [MODELS_DIR / "modelo_final.joblib", MODELS_DIR / "best_model.joblib"]:
+        if cand.exists():
+            ruta_modelo = cand
+            break
+
+    meta = {}
+    meta_path = MODELS_DIR / "modelo_final_meta.json"
+    if meta_path.exists():
+        try:
+            meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+
+    if ruta_modelo is not None:
+        model = joblib.load(ruta_modelo)
         es_dummy = False
+        nombre_modelo = meta.get("modelo", "Modelo entrenado")
+        umbral = meta.get("umbral_sin_cuenta", 0.5)
     else:
         model = DummyClassifier(strategy="most_frequent")
-        # Ajuste mínimo con ambas clases para que predict_proba devuelva probabilidades para [0, 1]
         n_features = len(NUM_FEATURES) + len(BIN_FEATURES) + len(CAT_FEATURES)
         X_dummy = pd.DataFrame(
             [[0] * n_features] * 100, columns=NUM_FEATURES + BIN_FEATURES + CAT_FEATURES
         )
-        # Proporción aproximada del dataset (74% bancarizados, 26% no bancarizados)
         y_dummy = [0] * 26 + [1] * 74
         model.fit(X_dummy, y_dummy)
         es_dummy = True
+        nombre_modelo = "DummyClassifier (prueba)"
+        umbral = 0.5
 
-    return model, preprocesador, es_dummy
+    return model, preprocesador, es_dummy, nombre_modelo, umbral, meta
 
 
 # ── Función de predicción ─────────────────────────────────────────────────────
-def predecir(fila_raw: dict, model, preprocesador) -> tuple[int, float]:
+def predecir(
+    fila_raw: dict, model, preprocesador, umbral: float = 0.5
+) -> tuple[int, float]:
     """Recibe el dict crudo del formulario y devuelve (clase, probabilidad_clase_1)."""
     # 1. DataFrame con los códigos originales del CSV
     df_raw = pd.DataFrame([fila_raw])
@@ -98,32 +116,43 @@ def predecir(fila_raw: dict, model, preprocesador) -> tuple[int, float]:
     # 2. Recodificación con la función de Franco (female, emp_in, urbanicity → urban)
     df_limpio = limpiar(df_raw)
 
-    # 3. Selección de features en el orden correcto
+    # 3. Selección de features en el orden esperado
     X = df_limpio[NUM_FEATURES + BIN_FEATURES + CAT_FEATURES]
 
-    # 4. Transformación (si el preprocesador está disponible)
-    if preprocesador is not None:
-        try:
-            X_trans = preprocesador.transform(X)
-        except Exception:
-            X_trans = X
-    else:
-        X_trans = X
+    # 4. Comprobar si el modelo es un Pipeline completo que ya incluye el preprocesador
+    es_pipeline_completo = hasattr(model, "named_steps") and (
+        "prep" in model.named_steps or "preprocessor" in model.named_steps
+    )
 
-    # 5. Predicción
-    clase = int(model.predict(X_trans)[0])
-    if hasattr(model, "predict_proba"):
-        probs = model.predict_proba(X_trans)[0]
-        if len(probs) > 1:
-            # Si el modelo tiene ambas clases [0, 1], buscar el índice de la clase 1
-            if hasattr(model, "classes_"):
-                idx_1 = list(model.classes_).index(1) if 1 in model.classes_ else 1
-                prob = float(probs[idx_1])
-            else:
-                prob = float(probs[1])
-        else:
-            prob = float(probs[0]) if clase == 1 else 0.0
+    if es_pipeline_completo:
+        X_input = X
+    elif preprocesador is not None:
+        try:
+            X_input = preprocesador.transform(X)
+        except Exception:
+            X_input = X
     else:
+        X_input = X
+
+    # 5. Predicción con probabilidades y umbral
+    if hasattr(model, "predict_proba"):
+        probs = model.predict_proba(X_input)[0]
+        # Identificar índices de las clases
+        clases = list(model.classes_) if hasattr(model, "classes_") else [0, 1]
+        idx_0 = clases.index(0) if 0 in clases else 0
+        idx_1 = clases.index(1) if 1 in clases else 1
+
+        p_sin_cuenta = float(probs[idx_0])
+        p_con_cuenta = float(probs[idx_1])
+
+        # Decisión con umbral calibrado sobre P(sin cuenta)
+        if p_sin_cuenta >= umbral:
+            clase = 0
+        else:
+            clase = 1
+        prob = p_con_cuenta
+    else:
+        clase = int(model.predict(X_input)[0])
         prob = 1.0 if clase == 1 else 0.0
 
     return clase, prob
@@ -148,14 +177,20 @@ st.markdown(
 )
 
 # ── Carga de recursos ────────────────────────────────────────────────────────
-model, preprocesador, es_dummy = cargar_modelo()
+model, preprocesador, es_dummy, nombre_modelo, umbral, meta = cargar_modelo()
 economias_df = cargar_economias()
 
 if es_dummy:
     st.warning(
         "🧪 **Modelo de prueba** — Los resultados no son predictivos. "
-        "El modelo final se integrará cuando Tania entregue `models/best_model.joblib`.",
+        "El modelo final se integrará cuando exista `models/modelo_final.joblib`.",
         icon="⚠️",
+    )
+else:
+    st.info(
+        f"🎯 **Modelo activo:** `{nombre_modelo}` · "
+        f"**Umbral óptimo P(sin cuenta):** `{umbral:.3f}`",
+        icon="ℹ️",
     )
 
 st.divider()
@@ -255,7 +290,7 @@ if submitted:
     }
 
     with st.spinner("Calculando predicción…"):
-        clase, prob = predecir(fila_raw, model, preprocesador)
+        clase, prob = predecir(fila_raw, model, preprocesador, umbral)
 
     st.divider()
     st.subheader("📊 Resultado")
