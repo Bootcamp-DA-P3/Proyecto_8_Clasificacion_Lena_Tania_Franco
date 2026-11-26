@@ -4,6 +4,16 @@ Equipo: Lena, Tania, Franco
 
 Modelo de clasificación que predice si una persona tiene cuenta financiera (`account`) a partir de su perfil, usando los microdatos de Global Findex 2025.
 
+## 🚀 Aplicación web (Streamlit)
+
+La aplicación interactiva está desplegada y disponible públicamente:
+👉 **[Predictor de Inclusión Financiera en Streamlit Cloud](https://findex-financial-inclusion-predictor.streamlit.app/)**
+
+Para ejecutarla en local:
+```bash
+streamlit run app/app.py
+```
+
 ## Estructura
 
 ```
