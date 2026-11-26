@@ -1,0 +1,31 @@
+{
+  "modelo": "lightgbm",
+  "params": {
+    "learning_rate": 0.040331443383617174,
+    "min_child_samples": 102,
+    "n_estimators": 485,
+    "num_leaves": 27,
+    "reg_lambda": 0.3585971445667122,
+    "random_state": 42,
+    "class_weight": "balanced",
+    "verbose": -1,
+    "n_jobs": -1
+  },
+  "features": [
+    "age",
+    "educ",
+    "inc_q",
+    "female",
+    "emp_in",
+    "urban",
+    "internet_use",
+    "regionwb",
+    "economycode"
+  ],
+  "umbral_sin_cuenta": 0.585,
+  "clases": [
+    0,
+    1
+  ],
+  "clase_positiva_interes": 0
+}
