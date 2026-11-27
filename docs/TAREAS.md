@@ -15,7 +15,7 @@ Predecir si una persona tiene cuenta financiera (`account`: 1 = sí, 0 = no) a p
 - No tiene nulos y es binaria.
 - Desbalance moderado (74% sí / 26% no), así que se evalúa con F1, recall y ROC-AUC, no solo accuracy.
 
-**Riesgo principal (leakage):** `account_fin`, `account_mob`, `dig_account` y casi todas las `fin*` se derivan de tener cuenta. Se excluyen de las features. La lista definitiva se cierra en la Fase 0 revisando el codebook de Findex.
+**Riesgo principal (leakage):** `account_fin`, `account_mob`, `dig_account` y casi todas las `fin*` se derivan de tener cuenta. Se excluyen de las features. La lista definitiva está en `src/preprocess.py`, que usa una lista blanca de columnas.
 
 ## Requisitos clave (README Factoria)
 
@@ -57,7 +57,7 @@ docs/
 - [x] Configurar ramas: `main`, `dev` y una rama por feature (`feature/eda`, `feature/modelo`, etc.).
 - [x] Definir reglas de commits y crear el tablero Trello.
 - [x] Decidir qué hacer con el CSV de 50 MB: Git LFS o `.gitignore` con instrucciones de descarga.
-- [ ] `src/preprocess.py`:
+- [x] `src/preprocess.py`:
   - Selección de columnas (sin leakage).
   - Tratamiento de nulos.
   - Recodificar `female` (1/2 a 0/1).
@@ -74,7 +74,7 @@ docs/
 - [ ] Dockerizar la app.
 - [ ] Base de datos para los datos que recoja la app (SQL o MongoDB).
 - [ ] Despliegue en la nube (Render o similar).
-- [ ] Tests unitarios del preprocesado.
+- [x] Tests unitarios del preprocesado (`tests/test_preprocess.py`, se ejecutan con `pytest`).
 
 ---
 
@@ -131,10 +131,26 @@ docs/
 | Tarea | Depende de | Mientras tanto |
 |---|---|---|
 | EDA (Lena) | Nada | Trabajar sobre el CSV crudo |
-| Modelado (Tania) | Preprocesado (Franco) | Preparar plantilla de evaluación y métricas |
+| Modelado (Tania) | Preprocesado (Franco), ya disponible | Usar `train_raw.csv` / `train.csv` generados por `src/preprocess.py` |
 | App (Lena) | Modelo final (Tania) | Usar un modelo dummy |
 | Docker y deploy (Franco) | App (Lena) | Preparar Dockerfile y base de datos |
 
+## Niveles de entrega
+
+No hay rúbrica con puntajes: la guía son los niveles del README de Factoría (esencial, medio, avanzado, experto). Hay que cumplir lo esencial completo y avanzar en los siguientes niveles hasta donde el equipo decida llegar.
+
+- [ ] Nivel esencial.
+- [ ] Nivel medio.
+- [ ] Nivel avanzado.
+- [ ] Nivel experto.
+
+**Nivel objetivo del equipo:** por definir.
+
+### Nivel experto (aún sin asignar)
+
+- [ ] Experimentar con redes neuronales o desplegarlas.
+- [ ] MLOps: test A/B, monitoreo de data drift y reemplazo automático del modelo solo si el nuevo supera métricas predefinidas.
+
 ## Pendiente
 
-- Fechas y rúbrica del Bootcamp Manager (no se pudieron leer). Ajustar este plan cuando estén.
+- Fechas de entrega: el README de Factoría no las trae. Ajustar este plan cuando estén.
