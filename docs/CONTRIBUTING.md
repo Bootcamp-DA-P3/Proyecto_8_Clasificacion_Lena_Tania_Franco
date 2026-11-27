@@ -1,6 +1,6 @@
 # Cómo trabajamos en el repo
 
-Reglas del equipo (Lena, Tania, Franco) para ramas, commits y PRs.
+Reglas del equipo para ramas, commits y PRs.
 
 ## Ramas
 
@@ -8,7 +8,7 @@ Reglas del equipo (Lena, Tania, Franco) para ramas, commits y PRs.
 |---|---|
 | `main` | Versión estable y entregable. Solo recibe merges desde `dev`. |
 | `dev` | Integración. Aquí se mergean las features. |
-| `feature/<tarea>` | Una rama por tarjeta de Trello. Sale de `dev` y vuelve a `dev`. |
+| `feature/<tarea>` | Una rama por tarea. Sale de `dev` y vuelve a `dev`. |
 
 Ejemplos: `feature/eda`, `feature/preprocess`, `feature/modelo-baseline`, `feature/app-streamlit`.
 
@@ -24,13 +24,11 @@ git checkout -b feature/eda
 git push -u origin feature/eda
 ```
 
-1. Mover la tarjeta a **En curso**.
-2. Crear la rama desde `dev` actualizado.
-3. Hacer commits pequeños.
-4. Abrir un PR hacia `dev` y pegar el link del PR en la tarjeta.
-5. Mover la tarjeta a **En revisión (PR)**.
-6. Otra persona del equipo revisa y aprueba. Quien abrió el PR hace el merge.
-7. Mover la tarjeta a **Hecho** y borrar la rama.
+1. Crear la rama desde `dev` actualizado.
+2. Hacer commits pequeños.
+3. Abrir un PR hacia `dev`.
+4. Otra persona del equipo revisa y aprueba. Quien abrió el PR hace el merge.
+5. Borrar la rama.
 
 Al cerrar cada fase se abre un PR de `dev` a `main`.
 

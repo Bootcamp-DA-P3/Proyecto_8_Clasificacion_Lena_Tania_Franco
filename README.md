@@ -25,11 +25,11 @@ app/              App de predicción (Streamlit)
 models/           Modelos entrenados
 reports/          Informe técnico y presentaciones
 tests/            Tests
-docs/             Plan de tareas y reglas del equipo
-scripts/          Utilidades (creación del tablero Trello)
+docs/             Informe técnico y reglas del equipo
 ```
 
 ## Documentación
 
-- [Plan de tareas](docs/TAREAS.md)
+- [Informe técnico del modelado (PDF)](docs/Informe_tecnico_rendimiento_modelado.pdf)
+- [Insights de negocio](reports/insights_negocio.md)
 - [Cómo trabajamos: ramas, commits y PRs](docs/CONTRIBUTING.md)
