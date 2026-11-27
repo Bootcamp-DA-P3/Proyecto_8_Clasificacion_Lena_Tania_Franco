@@ -61,7 +61,7 @@ def cargar_economias() -> pd.DataFrame:
 # ── Carga del modelo y preprocesador (cacheados) ─────────────────────────────
 @st.cache_resource(show_spinner=False)
 def cargar_modelo():
-    """Carga el modelo final de Tania (o crea un modelo dummy si aún no existe)."""
+    """Carga el modelo final (o crea un modelo dummy si no existe)."""
     import json
     import joblib
     from sklearn.dummy import DummyClassifier
@@ -70,7 +70,7 @@ def cargar_modelo():
     if PREPROCESSOR_PATH.exists():
         preprocesador = joblib.load(PREPROCESSOR_PATH)
 
-    # Buscar modelo final (modelo_final.joblib de Tania o best_model.joblib)
+    # Buscar modelo final (modelo_final.joblib o best_model.joblib)
     ruta_modelo = None
     for cand in [MODELS_DIR / "modelo_final.joblib", MODELS_DIR / "best_model.joblib"]:
         if cand.exists():
@@ -113,7 +113,7 @@ def predecir(
     # 1. DataFrame con los códigos originales del CSV
     df_raw = pd.DataFrame([fila_raw])
 
-    # 2. Recodificación con la función de Franco (female, emp_in, urbanicity → urban)
+    # 2. Recodificación con `limpiar` de src/preprocess.py (female, emp_in, urbanicity → urban)
     df_limpio = limpiar(df_raw)
 
     # 3. Selección de features en el orden esperado
@@ -315,7 +315,7 @@ if submitted:
     if es_dummy:
         st.caption(
             "⚠️ Resultado generado con modelo dummy (siempre predice la clase mayoritaria). "
-            "Reemplazar con `models/best_model.joblib` de Tania para predicciones reales."
+            "Reemplazar con `models/modelo_final.joblib` para predicciones reales."
         )
 
 # ── Pie de página ─────────────────────────────────────────────────────────────

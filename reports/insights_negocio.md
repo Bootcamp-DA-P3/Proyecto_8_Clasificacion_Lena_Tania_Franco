@@ -67,10 +67,10 @@ Segmentando las **37,778 personas sin cuenta** según su acceso digital real (`c
 
 ## 4. Handoff técnico para Fase 0, Preprocesado y Modelado
 
-- **Alineación con [`src/preprocess.py`](../src/preprocess.py) (Franco):**
+- **Alineación con [`src/preprocess.py`](../src/preprocess.py):**
   - El uso de lista blanca (`age`, `educ`, `inc_q`, `female`, `emp_in`, `urbanicity` -> `urban`, `internet_use`, `regionwb`, `economycode`) elimina el **data leakage** demostrado en el EDA (como `account_fin` `r=+0.842`, `anydigpayment` `r=+0.818`, `dig_account` `r=+0.724`, `fin2` `r=-0.631` y las **51 columnas `fin*`** con nulos estructuralmente ligados al target).
   - La recodificación `1/2 -> 1/0` y los indicadores de ausencia (`add_indicator=True`) en binarias capturan correctamente que `emp_in` nulo corresponde al 100% a China (`4,020` filas).
-- **Puntos de vigilancia para Modelado (Tania) e iteraciones:**
+- **Puntos de vigilancia para Modelado e iteraciones:**
   1. **`con1` (tenencia de móvil):** tiene `r_Spearman = +0.276` con `account` y 0% nulos (salvo 102 filas con códigos `3/4` NS/NC). Merece evaluarse en una iteración v2 como feature adicional sin leakage.
   2. **`inc_q` en Lesotho:** los `1,020` nulos (`0.71%`) pertenecen íntegramente a Lesotho; la imputación por mediana global asigna quintil `3`.
   3. **`age == 100`:** existen `279` registros con edad 100 (posible *top-coding* en países de ingresos altos).
